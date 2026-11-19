@@ -11,13 +11,14 @@ on:
           - '1'
           - '2'
         default: '1'
-      style:
+            style:
         description: Choose video style
         type: choice
         options:
           - story
           - neon
-        default: story
+          - hybrid
+        default: hybrid
 
 jobs:
   render:
