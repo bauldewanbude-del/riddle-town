@@ -1,0 +1,49 @@
+
+name: Render video
+
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: Episode
+        type: choice
+        options: ['1', '2']
+        default: '1'
+      style:
+        description: Video style
+        type: choice
+        options: [story, neon]
+        default: story
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Render video
+        run: bash build.sh "${{ inputs.episode }}" "${{ inputs.style }}"
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: riddle-video
+          path: out/*.mp4
+          if-no-files-found: error
+          retention-days: 14
+          
