@@ -11,7 +11,9 @@ on:
           - '1'
           - '2'
         default: '1'
-            style:
+        required: true
+
+      style:
         description: Choose video style
         type: choice
         options:
@@ -19,6 +21,7 @@ on:
           - neon
           - hybrid
         default: hybrid
+        required: true
 
 jobs:
   render:
@@ -42,13 +45,26 @@ jobs:
       - name: Install project
         run: npm install
 
+      - name: Check rendering dependencies
+        run: |
+          node --version
+          npm --version
+          ffmpeg -version
+          espeak-ng --version
+
       - name: Render video
         run: npm run render -- "${{ inputs.episode }}" "${{ inputs.style }}"
+
+      - name: Verify generated video
+        run: |
+          test -n "$(find out -maxdepth 1 -name '*.mp4' -print -quit)"
+          ls -lh out/*.mp4
 
       - name: Upload finished video
         uses: actions/upload-artifact@v4
         with:
           name: riddle-town-video
           path: out/*.mp4
+          if-no-files-found: error
           retention-days: 14
           
