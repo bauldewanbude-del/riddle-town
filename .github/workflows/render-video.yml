@@ -42,7 +42,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y blender ffmpeg espeak-ng fonts-dejavu-core
 
-      - name: Check rendering dependencies
+      - name: Check dependencies
         run: |
           node --version
           npm --version
@@ -53,18 +53,24 @@ jobs:
       - name: Install project
         run: npm install
 
-      - name: Render video
+      - name: Render original story video
         run: npm run render -- "${{ inputs.episode }}" "${{ inputs.style }}"
 
-      - name: Verify generated video
+      - name: Render 3D Blender animation
         run: |
+          mkdir -p out
+          blender --background --factory-startup --python-exit-code 1 --python src/blender_scene.py
+
+      - name: Verify generated videos
+        run: |
+          test -f out/riddle-town-3d-test.mp4
           test -n "$(find out -maxdepth 1 -name '*.mp4' -print -quit)"
           ls -lh out/*.mp4
 
-      - name: Upload finished video
+      - name: Upload finished videos
         uses: actions/upload-artifact@v4
         with:
-          name: riddle-town-video
+          name: riddle-town-videos
           path: out/*.mp4
           if-no-files-found: error
           retention-days: 14
