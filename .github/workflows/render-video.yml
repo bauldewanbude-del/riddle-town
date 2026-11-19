@@ -37,20 +37,21 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install FFmpeg and narration
+      - name: Install Blender, FFmpeg and narration
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg espeak-ng fonts-dejavu-core
-
-      - name: Install project
-        run: npm install
+          sudo apt-get install -y blender ffmpeg espeak-ng fonts-dejavu-core
 
       - name: Check rendering dependencies
         run: |
           node --version
           npm --version
+          blender --version
           ffmpeg -version
           espeak-ng --version
+
+      - name: Install project
+        run: npm install
 
       - name: Render video
         run: npm run render -- "${{ inputs.episode }}" "${{ inputs.style }}"
