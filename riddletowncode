@@ -1,0 +1,36 @@
+name: Render video
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: Episode
+        type: choice
+        options: ['1', '2']
+        default: '1'
+      style:
+        description: Look
+        type: choice
+        options: [story, neon]
+        default: story
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Unpack and install
+        run: |
+          unzip -oq riddle-town-repo.zip -d work
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg python3-numpy python3-scipy
+          cd work && npm install
+      - name: Render
+        run: cd work && bash build.sh ${{ inputs.episode }} ${{ inputs.style }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: riddle-video
+          path: work/out/*.mp4
+          retention-days: 14
